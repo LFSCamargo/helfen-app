@@ -42,6 +42,12 @@
 	<false/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Helfen Pet would like access to your photo gallery</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Helfen Pet would like to use your camera</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Helfen Pet would like to save photos to your photo gallery</string>
 	<key>NSAppTransportSecurity</key>
 	<!--See http://ste.vn/2015/06/10/configuring-app-transport-security-ios-9-osx-10-11/ -->
 	<dict>
