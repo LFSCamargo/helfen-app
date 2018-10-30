@@ -1,4 +1,5 @@
 import RNFetchBlob from 'react-native-fetch-blob'
+import ImageResizer from 'react-native-image-resizer'
 import { ENV } from '../../config/env'
 import { AsyncStorage } from 'react-native'
 import { User } from 'src/sagas/user/get'
@@ -11,22 +12,32 @@ interface ImageToBase64 {
 
 export const imageToBase64 = (uri: string): Promise<ImageToBase64> => {
   return new Promise((resolve, reject) => {
-    RNFetchBlob.fetch('GET', uri)
-      .then(res => {
-        const base64FinalURI: string = `data:image/png;base64,${res.data}`
-        resolve({
-          error: false,
-          image: base64FinalURI,
-          errorMessage: null,
-        })
+    ImageResizer.createResizedImage(uri, 500, 500, 'JPEG', 100, 0)
+      .then(response => {
+        RNFetchBlob.fetch('GET', response.uri)
+          .then(res => {
+            const base64FinalURI: string = `data:image/png;base64,${res.data}`
+            resolve({
+              error: false,
+              image: base64FinalURI,
+              errorMessage: null,
+            })
+          })
+          .catch((e: Error) =>
+            reject({
+              error: true,
+              image: null,
+              errorMessage: e.message,
+            }),
+          )
       })
-      .catch((e: Error) =>
+      .catch((e: Error) => {
         reject({
           error: true,
           image: null,
           errorMessage: e.message,
-        }),
-      )
+        })
+      })
   })
 }
 
