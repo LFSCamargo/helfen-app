@@ -37,7 +37,7 @@ function* getUser() {
   } catch (error) {
     yield put({
       type: GET_USER_FAIL,
-      error,
+      error: error.message,
     })
   }
 }

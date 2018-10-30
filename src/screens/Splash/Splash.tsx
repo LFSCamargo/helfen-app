@@ -1,7 +1,8 @@
 import * as React from 'react'
+import idx from 'idx'
 import { connect } from 'react-redux'
 import { NavigationInjectedProps, StackActions, NavigationActions } from 'react-navigation'
-import { Animated } from 'react-native'
+import { Animated, AsyncStorage } from 'react-native'
 import styled from 'styled-components/native'
 
 import { ROUTE_NAMES } from '../../config/Router'
@@ -76,7 +77,7 @@ class Splash extends React.Component<Props, State> {
   }
   async componentDidMount() {
     const { animated, opacity, animated2, opacity2 } = this.state
-
+    AsyncStorage.clear()
     Animated.stagger(1000, [
       Animated.loop(
         Animated.parallel([
@@ -109,7 +110,8 @@ class Splash extends React.Component<Props, State> {
 
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.isLoading === false) {
-      if (nextProps.user._id) {
+      const hasUser = idx(nextProps, _ => _.user._id)
+      if (hasUser) {
         return this.props.navigation.dispatch(
           StackActions.reset({
             index: 0,

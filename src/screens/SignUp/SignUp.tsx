@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { connect } from 'react-redux'
 import { SafeAreaView, Platform, TouchableOpacity, Alert, AsyncStorage } from 'react-native'
 import { NavigationInjectedProps, StackActions, NavigationActions } from 'react-navigation'
 import KeyboardSpacer from 'react-native-keyboard-spacer'
@@ -9,6 +10,9 @@ import signup from '../../actions/user/signup'
 import Input from '../Components/Input'
 import Button from '../Components/Button'
 import { ROUTE_NAMES } from '../../config/Router'
+import getUser from '../../actions/user/get'
+import { ReduxState } from '../../redux/reduxDefinitions'
+import { User } from '../../sagas/user/get'
 
 const Wrapper = styled(SafeAreaView)`
   flex: 1;
@@ -58,7 +62,12 @@ const CompanyLogo = styled.Image.attrs({
   margin: 40px 0px;
 `
 
-interface Props extends NavigationInjectedProps {}
+interface Props extends NavigationInjectedProps {
+  user: User
+  getUser: () => void
+  isLoading: boolean
+  error: string
+}
 interface State {
   email: string
   password: string
@@ -66,6 +75,7 @@ interface State {
   cell: string
   name: string
   isLoading: boolean
+  formCompleted: boolean
 }
 
 class Login extends React.Component<Props, State> {
@@ -76,6 +86,22 @@ class Login extends React.Component<Props, State> {
     cell: '',
     document: '',
     isLoading: false,
+    formCompleted: false,
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    const { formCompleted } = this.state
+    if (!nextProps.isLoading && formCompleted) {
+      if (nextProps.error) {
+        return Alert.alert('Error', nextProps.error)
+      }
+      return this.props.navigation.dispatch(
+        StackActions.reset({
+          index: 0,
+          actions: [NavigationActions.navigate({ routeName: ROUTE_NAMES.HOME })],
+        }),
+      )
+    }
   }
 
   signup = async () => {
@@ -104,15 +130,11 @@ class Login extends React.Component<Props, State> {
 
     AsyncStorage.setItem('token', token)
 
-    this.props.navigation.dispatch(
-      StackActions.reset({
-        index: 0,
-        actions: [NavigationActions.navigate({ routeName: ROUTE_NAMES.HOME })],
-      }),
-    )
+    this.props.getUser()
 
     this.setState({
       isLoading: false,
+      formCompleted: true,
     })
   }
   render() {
@@ -170,4 +192,17 @@ class Login extends React.Component<Props, State> {
   }
 }
 
-export default Login
+const mapStateToProps = (state: ReduxState) => ({
+  user: state.user.user,
+  isLoading: state.user.isLoading,
+  error: state.user.error,
+})
+
+const mapDispatchToProps = (dispatch: any) => ({
+  getUser: () => dispatch(getUser()),
+})
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Login)
