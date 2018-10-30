@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { SafeAreaView, TouchableOpacity, Dimensions, Alert } from 'react-native'
+import { SafeAreaView, TouchableOpacity, Dimensions, Alert, ActivityIndicator } from 'react-native'
+import { NavigationInjectedProps } from 'react-navigation'
 import ImagePicker from 'react-native-image-picker'
 import { connect } from 'react-redux'
 import styled from 'styled-components/native'
@@ -7,6 +8,7 @@ import { ReduxState } from 'src/redux/reduxDefinitions'
 import Header from '../Components/Header'
 import Button from '../Components/Button'
 import { User } from 'src/sagas/user/get'
+import { imageToBase64, imageToTheApi, updateUserImage } from '../../actions/user/imageUpload'
 
 const { width, height } = Dimensions.get('window')
 
@@ -15,7 +17,7 @@ const ScrollView = styled.ScrollView.attrs({
     alignItems: 'center',
   },
 })`
-  height: ${height - 120};
+  height: ${height - 100};
   width: ${width};
 `
 
@@ -72,6 +74,13 @@ const AvatarInitials = styled.Text`
   font-size: 40px;
 `
 
+const ProfileImage = styled.Image`
+  width: 180px;
+  height: 180px;
+  border-radius: 90px;
+  margin: 30px;
+`
+
 const Username = styled.Text`
   font-family: ${({ theme }) => theme.font};
   font-size: 20px;
@@ -88,18 +97,23 @@ const CellPhone = styled.Text`
   letter-spacing: 3;
 `
 
-interface Props {
+interface Props extends NavigationInjectedProps {
   user: User
   isLoading: boolean
+  updateUserPhoto: (image: string, user: User) => void
 }
 
 interface State {
   avatarSource: string
+  imageChanged: boolean
+  imageProcessed: boolean
 }
 
 class Home extends React.Component<Props, State> {
   state = {
     avatarSource: '',
+    imageChanged: false,
+    imageProcessed: false,
   }
   getInitials = (name: string) => {
     return name
@@ -111,12 +125,12 @@ class Home extends React.Component<Props, State> {
       : ''
   }
 
-  pickImage = () => {
+  pickImage = async () => {
     const options = {
       title: 'Select Avatar',
     }
 
-    ImagePicker.showImagePicker(options, response => {
+    ImagePicker.showImagePicker(options, async response => {
       if (response.didCancel) {
         return null
       }
@@ -124,19 +138,61 @@ class Home extends React.Component<Props, State> {
         return Alert.alert('Error', response.error)
       }
 
-      this.setState({ avatarSource: response.uri })
+      const data = await imageToBase64(response.uri)
+
+      if (data.error) {
+        return Alert.alert('Erro', 'Ocorreu um erro durante o processamento da imagem')
+      }
+
+      this.setState({
+        avatarSource: data.image,
+        imageChanged: true,
+      })
+
+      const res = await imageToTheApi(data.image)
+
+      if (res.error) {
+        this.setState({
+          avatarSource: '',
+          imageChanged: false,
+          imageProcessed: false,
+        })
+        return Alert.alert('Erro', res.message)
+      }
+
+      this.setState({
+        imageProcessed: true,
+      })
+
+      this.props.updateUserPhoto(data.image, this.props.user)
     })
+  }
+
+  renderLoading = () => {
+    const { user } = this.props
+    const { imageChanged, imageProcessed } = this.state
+
+    const isLoading = imageChanged && !imageProcessed
+
+    if (isLoading) {
+      return <ActivityIndicator color="white" animating={true} />
+    }
+
+    return <AvatarInitials>{this.getInitials(user.name)}</AvatarInitials>
   }
 
   render() {
     const { user } = this.props
+    const { avatarSource, imageChanged, imageProcessed } = this.state
+
+    const image = imageChanged && imageProcessed ? avatarSource : user.photo
 
     const name = user.name.split(' ')[0]
     return (
       <Wrapper>
         <Header
           renderRight={() => (
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => this.props.navigation.openDrawer()}>
               <DrawerIcon />
             </TouchableOpacity>
           )}
@@ -149,9 +205,11 @@ class Home extends React.Component<Props, State> {
         />
         <ScrollView>
           <TouchableOpacity onPress={this.pickImage}>
-            <Avatar>
-              <AvatarInitials>{this.getInitials(user.name)}</AvatarInitials>
-            </Avatar>
+            {!image ? (
+              <Avatar>{this.renderLoading()}</Avatar>
+            ) : (
+              <ProfileImage source={{ uri: image }} />
+            )}
           </TouchableOpacity>
           <Username>{user.name.toUpperCase()}</Username>
           <Row>
@@ -171,4 +229,11 @@ const mapStateToProps = (state: ReduxState) => ({
   isLoading: state.user.isLoading,
 })
 
-export default connect(mapStateToProps)(Home)
+const mapDispatchToProps = (dispatch: (fn: any) => void) => ({
+  updateUserPhoto: (image: string, user: User) => dispatch(updateUserImage(image, user)),
+})
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Home)
