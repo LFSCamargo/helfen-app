@@ -16,6 +16,7 @@ const Row = styled.View`
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  height: 50;
   padding: 10px 20px;
   margin-top: 10;
 `
