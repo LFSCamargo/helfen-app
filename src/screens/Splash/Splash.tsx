@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-import { NavigationInjectedProps } from 'react-navigation'
+import { NavigationInjectedProps, StackActions, NavigationActions } from 'react-navigation'
 import { Animated } from 'react-native'
 import styled from 'styled-components/native'
 
@@ -110,9 +110,19 @@ class Splash extends React.Component<Props, State> {
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.isLoading === false) {
       if (nextProps.user._id) {
-        return this.props.navigation.navigate(ROUTE_NAMES.HOME)
+        return this.props.navigation.dispatch(
+          StackActions.reset({
+            index: 0,
+            actions: [NavigationActions.navigate({ routeName: ROUTE_NAMES.HOME })],
+          }),
+        )
       }
-      return this.props.navigation.navigate(ROUTE_NAMES.LOGIN)
+      return this.props.navigation.dispatch(
+        StackActions.reset({
+          index: 0,
+          actions: [NavigationActions.navigate({ routeName: ROUTE_NAMES.LOGIN })],
+        }),
+      )
     }
   }
   render() {
