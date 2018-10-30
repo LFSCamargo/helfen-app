@@ -1,5 +1,6 @@
 import { User } from '../sagas/user/get'
 import { GET_USER_FAIL, GET_USER_SUCCESS, GET_USER } from '../actions/user/get'
+import { UPDATE_IMAGE } from '../actions/user/imageUpload'
 
 export interface UserState {
   user: User | null
@@ -9,8 +10,9 @@ export interface UserState {
 
 interface UserAction {
   type: string
-  error?: Error
-  user?: User
+  error: Error
+  user: User
+  image: string
 }
 
 const initialState = {
@@ -41,6 +43,21 @@ const user = (state: UserState = initialState, action: UserAction) => {
         ...state,
         isLoading: false,
         error,
+      }
+    }
+    case UPDATE_IMAGE: {
+      const { user, image } = action
+      return {
+        ...state,
+        user: {
+          _id: user._id,
+          active: user.active,
+          name: user.name,
+          email: user.email,
+          cell: user.cell,
+          document: user.document,
+          photo: image,
+        },
       }
     }
     default:
