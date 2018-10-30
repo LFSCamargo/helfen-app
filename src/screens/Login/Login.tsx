@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { SafeAreaView, Platform, Alert, AsyncStorage } from 'react-native'
-import { NavigationInjectedProps } from 'react-navigation'
+import { NavigationInjectedProps, StackActions, NavigationActions } from 'react-navigation'
 import KeyboardSpacer from 'react-native-keyboard-spacer'
 import styled from 'styled-components/native'
 import idx from 'idx'
@@ -90,7 +90,12 @@ class Login extends React.Component<Props, State> {
 
     AsyncStorage.setItem('token', token)
 
-    this.props.navigation.navigate(ROUTE_NAMES.HOME)
+    this.props.navigation.dispatch(
+      StackActions.reset({
+        index: 0,
+        actions: [NavigationActions.navigate({ routeName: ROUTE_NAMES.HOME })],
+      }),
+    )
 
     this.setState({
       isLoading: false,
