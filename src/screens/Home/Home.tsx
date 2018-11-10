@@ -9,6 +9,7 @@ import Header from '../Components/Header'
 import Button from '../Components/Button'
 import { User } from 'src/sagas/user/get'
 import { imageToBase64, imageToTheApi, updateUserImage } from '../../actions/user/imageUpload'
+import { ROUTE_NAMES } from '../../config/Router'
 
 const { width, height } = Dimensions.get('window')
 
@@ -217,7 +218,10 @@ class Home extends React.Component<Props, State> {
             <CellPhone>{user.cell}</CellPhone>
           </Row>
           <Button title="Meus Pets" />
-          <Button title="Perdi um Pet" />
+          <Button
+            title="Perdi um Pet"
+            onPress={() => this.props.navigation.navigate(ROUTE_NAMES.ADD_PET)}
+          />
         </ScrollView>
       </Wrapper>
     )
