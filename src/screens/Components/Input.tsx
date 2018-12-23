@@ -12,6 +12,7 @@ const Wrapper = styled.TextInput.attrs({
   font-size: 18;
   font-family: ${({ theme }) => theme.font};
   width: 90%;
+  ${({ multiline }) => (multiline ? 'height: 200px' : '')};
 `
 
 type InputProps = TextInputAndroidProps & TextInputIOSProps & TextInputProps

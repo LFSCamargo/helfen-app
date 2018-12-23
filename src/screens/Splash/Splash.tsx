@@ -77,7 +77,7 @@ class Splash extends React.Component<Props, State> {
   }
   async componentDidMount() {
     const { animated, opacity, animated2, opacity2 } = this.state
-    AsyncStorage.clear()
+    // AsyncStorage.clear()
     Animated.stagger(1000, [
       Animated.loop(
         Animated.parallel([

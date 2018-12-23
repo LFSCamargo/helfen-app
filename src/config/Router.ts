@@ -6,6 +6,7 @@ import Login from '../screens/Login/Login'
 import SignUp from '../screens/SignUp/SignUp'
 import Splash from '../screens/Splash/Splash'
 import HaveYouSeen from '../screens/HaveYouSeen/HaveYouSeen'
+import AddPet from '../screens/Pet/AddPet'
 import Map from '../screens/Map/Map'
 import DrawerContainer from '../screens/Components/DrawerContainer'
 
@@ -17,6 +18,7 @@ export const ROUTE_NAMES = {
   PROFILE: 'PROFILE',
   MAP: 'MAP',
   HAVE_YOU_SEEN: 'HAVE_YOU_SEEN',
+  ADD_PET: 'ADD_PET',
 }
 
 export const DrawerNav = createDrawerNavigator(
@@ -37,6 +39,7 @@ export const Router = createStackNavigator(
     [ROUTE_NAMES.HOME]: DrawerNav,
     [ROUTE_NAMES.SIGNUP]: SignUp,
     [ROUTE_NAMES.LOGIN]: Login,
+    [ROUTE_NAMES.ADD_PET]: AddPet,
   },
   {
     initialRouteName: ROUTE_NAMES.SPLASH,
