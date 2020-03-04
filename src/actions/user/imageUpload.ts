@@ -1,4 +1,4 @@
-import RNFetchBlob from 'react-native-fetch-blob'
+import RNFetchBlob from 'rn-fetch-blob'
 import ImageResizer from 'react-native-image-resizer'
 import { ENV } from '../../config/env'
 import { AsyncStorage } from 'react-native'
