@@ -13,7 +13,7 @@
   "dependencies": {
     "gravatar": "^1.6.0",
     "idx": "^2.4.0",
-    "moment": "^2.22.2",
+    "moment": "^2.29.4",
     "react": "16.9.0",
     "react-native": "0.61.5",
     "react-native-image-picker": "^0.27.1",
